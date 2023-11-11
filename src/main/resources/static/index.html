@@ -1,0 +1,332 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Cadastro de Carros</title>
+    <style>
+        body {
+            font-family: "Arial", "Helvetica", sans-serif;
+            background-color: #f0f0f0;
+            margin: 0;
+            padding: 0;
+            text-align: center;
+        }
+
+        h1 {
+            background-color: #007AFF;
+            color: #fff;
+            padding: 20px 0;
+            margin: 0;
+            font-size: 28px;
+            font-weight: bold;
+        }
+
+        .form-group {
+            margin: 10px;
+            text-align: left;
+        }
+
+        label {
+            font-weight: bold;
+            font-size: 18px;
+            color: #333;
+            display: block;
+        }
+
+        input[type="text"],
+        input[type="number"],
+        input[type="file"] {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            font-size: 16px;
+            margin-bottom: 10px;
+            outline: none;
+        }
+
+        .btn {
+            background-color: #007AFF;
+            color: #fff;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 18px;
+            transition: background-color 0.3s;
+        }
+
+        .btn:hover {
+            background-color: #0056b3;
+        }
+
+        .button-group {
+            text-align: center;
+            margin-top: 20px;
+        }
+
+        h2 {
+            margin-top: 20px;
+            font-size: 24px;
+        }
+
+        .carro-item {
+            background-color: #fff;
+            border: 1px solid #e0e0e0;
+            margin: 10px 0;
+            padding: 10px;
+            border-radius: 5px;
+            box-shadow: 0 0 5px rgba(0, 0, 0, 0.1);
+            display: flex;
+            align-items: center;
+        }
+
+        .carro-info {
+            flex: 1;
+            padding: 0 10px;
+        }
+
+        .carro-marca {
+            font-weight: bold;
+            font-size: 20px;
+            color: #333;
+            margin-bottom: 5px;
+        }
+
+        .carro-modelo {
+            font-size: 18px;
+            color: #555;
+            margin-bottom: 10px;
+        }
+
+        .carro-ano {
+            font-size: 16px;
+            color: #777;
+            margin-bottom: 5px;
+        }
+
+        .carro-valor {
+            font-weight: bold;
+            font-size: 20px;
+            color: #e74c3c;
+            margin-bottom: 10px;
+        }
+
+        .carro-imagem {
+            max-width: 150px;
+            max-height: 100px;
+            object-fit: cover;
+            border: 1px solid #e0e0e0;
+            border-radius: 5px;
+        }
+
+        #excluirCarrosBtn,
+        #historicoCarrosBtn,
+        #voltarBtn {
+            background-color: #007AFF;
+            color: #fff;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 18px;
+            margin-right: 10px;
+            transition: background-color 0.3s;
+        }
+
+        #excluirCarrosBtn:hover,
+        #historicoCarrosBtn:hover,
+        #voltarBtn:hover {
+            background-color: #0056b3;
+        }
+
+        #voltarBtn {
+            display: none;
+        }
+    </style>
+</head>
+
+
+
+
+
+
+
+
+<body>
+    <h1>Cadastro de Carros</h1>
+    <div class="form-group">
+        <label for="marca">Marca:</label>
+        <input type="text" id="marca" name="marca" required>
+    </div>
+
+    <div class="form-group">
+        <label for="modelo">Modelo:</label>
+        <input type="text" id="modelo" name="modelo" required>
+    </div>
+
+    <div class="form-group">
+        <label for="ano">Ano:</label>
+        <input type="number" id="ano" name="ano" required>
+    </div>
+
+    <div class="form-group">
+        <label for="valor">Valor:</label>
+        <input type="number" id="valor" name="valor" required>
+    </div>
+
+    <div class="form-group">
+        <label for="imagem">Imagem do Carro:</label>
+        <input type="file" id="imagem" name="imagem" accept="image/*">
+    </div>
+
+    <button class="btn" type="button" onclick="cadastrarCarro()">Cadastrar</button>
+
+    <h2>Carros Cadastrados:</h2>
+    <div class="button-group">
+        <button id="excluirCarrosBtn">Excluir Carros Selecionados</button>
+        <button id="historicoCarrosBtn">Historico de Cadastro</button>
+        <button id="voltarBtn">Restaurar Carros</button>
+    </div>
+
+    <ul id="carrosList"></ul>
+
+    <script>
+        let carrosExcluidos = [];
+        let carrosCadastrados = [];
+
+        function cadastrarCarro() {
+            const marca = document.getElementById("marca").value;
+            const modelo = document.getElementById("modelo").value;
+            const ano = parseInt(document.getElementById("ano").value);
+            const valor = parseFloat(document.getElementById("valor").value);
+            const imagemInput = document.getElementById("imagem");
+            const imagem = imagemInput.files[0];
+
+            const carro = {
+                marca: marca,
+                modelo: modelo,
+                ano: ano,
+                valor: valor,
+                imagem: imagem
+            };
+
+            carrosCadastrados.push(carro);
+
+            function listarCarros() {
+            fetch('/carros')
+                .then(response => response.json())
+                .then(carros => {
+                    const carrosList = document.getElementById("carrosList");
+                    carrosList.innerHTML = "";
+
+                    carros.forEach(carro => {
+                        const div = document.createElement("div");
+                        div.classList.add('carro-item');
+                        div.innerHTML = `
+                            <div class="carro-info">
+                                <span class="carro-marca">Marca: ${carro.marca}</span>
+                                <span class="carro-modelo">Modelo: ${carro.modelo}</span>
+                                <span class="carro-ano">Ano: ${carro.ano}</span>
+                                <span class="carro-valor">Valor: ${carro.valor}</span>
+                            </div>
+                        `;
+                        carrosList.appendChild(div);
+                    });
+                });
+        }
+
+            const carrosList = document.getElementById("carrosList");
+            const li = document.createElement("li");
+            li.classList.add('carro-item');
+            li.innerHTML = `
+                <input type="checkbox" class="carro-checkbox">
+                <div class="carro-info">
+                    <span class="carro-marca">Marca: ${carro.marca}</span>
+                    <span class="carro-modelo">Modelo: ${carro.modelo}</span>
+                    <span class="carro-ano">Ano: ${carro.ano}</span>
+                    <span class="carro-valor">Valor: ${carro.valor}</span>
+                </div>
+            `;
+
+            if (imagem) {
+                const imagemElement = document.createElement("img");
+                imagemElement.src = URL.createObjectURL(imagem);
+                imagemElement.alt = "Imagem do Carro";
+                li.querySelector(".carro-info").appendChild(imagemElement);
+            }
+
+            carrosList.appendChild(li);
+
+            document.getElementById("marca").value = "";
+            document.getElementById("modelo").value = "";
+            document.getElementById("ano").value = "";
+            document.getElementById("valor").value = "";
+            imagemInput.value = "";
+        }
+
+        const excluirCarrosBtn = document.getElementById("excluirCarrosBtn");
+        excluirCarrosBtn.addEventListener("click", () => excluirCarrosSelecionados());
+
+        const historicoCarrosBtn = document.getElementById("historicoCarrosBtn");
+        historicoCarrosBtn.addEventListener("click", () => mostrarHistoricoCarros());
+
+        const voltarBtn = document.getElementById("voltarBtn");
+        voltarBtn.addEventListener("click", () => voltarParaListaCarros());
+
+        function excluirCarrosSelecionados() {
+            const carrosCheckbox = document.querySelectorAll('.carro-checkbox:checked');
+            carrosCheckbox.forEach(checkbox => {
+                const carroParaDeletar = checkbox.parentElement;
+                const index = carrosCadastrados.findIndex(carro => carroParaDeletar === carro);
+                if (index !== -1) {
+                    carrosCadastrados.splice(index, 1);
+                    carrosExcluidos.push(carroParaDeletar);
+                }
+                carroParaDeletar.remove();
+            });
+        }
+
+        function mostrarHistoricoCarros() {
+            const carrosList = document.getElementById("carrosList");
+            carrosList.innerHTML = "";
+
+            carrosExcluidos.forEach(carro => {
+                carrosList.appendChild(carro);
+            });
+
+            voltarBtn.style.display = "block"; 
+        }
+
+        function voltarParaListaCarros() {
+            const carrosList = document.getElementById("carrosList");
+            carrosList.innerHTML = "";
+
+            carrosCadastrados.forEach(carro => {
+                const li = document.createElement("li");
+                li.classList.add('carro-item');
+                li.innerHTML = `
+                    <input type="checkbox" class="carro-checkbox">
+                    <div class="carro-info">
+                        <span class="carro-marca">Marca: ${carro.marca}</span>
+                        <span class "carro-modelo">Modelo: ${carro.modelo}</span>
+                        <span class="carro-ano">Ano: ${carro.ano}</span>
+                        <span class="carro-valor">Valor: ${carro.valor}</span>
+                    `;
+                if (carro.imagem) {
+                    const imagemElement = document.createElement("img");
+                    imagemElement.src = URL.createObjectURL(carro.imagem);
+                    imagemElement.alt = "Imagem do Carro";
+                    li.querySelector(".carro-info").appendChild(imagemElement);
+                }
+                carrosList.appendChild(li);
+            });
+
+            listarCarros();
+
+            voltarBtn.style.display = "none"; 
+        }
+    </script>
+</body>
+
+</html>
